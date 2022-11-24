@@ -2,7 +2,7 @@ import { Router } from "express";
 import User from "../models/User.js";
 import register from "./register.js";
 import login from "./login.js";
-import { VerifyToken, VerifyTokenAndAuthorization } from "../auth/verifyToken.js";
+import { VerifyToken, VerifyTokenAndAuthorization, VerifyAdmin } from "../auth/verifyToken.js";
 
 
 export const UserRoute = Router()
@@ -50,3 +50,35 @@ UserRoute.put('/:id', async (req,res)=>{ //DESPUES VEMOS SI AGRUEGAMOS EL MIDDLE
     }
 })
 
+//--BORRAR USUARIOS
+
+UserRoute.delete('/:id', VerifyAdmin, async (req,res)=> { 
+    try{
+        await User.findByIdAndDelete( req.params.id )
+        res.status(200).json('El usuario fue borrado').redirect('home.html')
+    }catch(err){
+        res.status(403).json(err)
+    }
+ } )
+
+
+ //--MOSTRAR USUARIOS
+
+UserRoute.get('/:id' , async (req,res)=> { 
+
+    try{
+        const user = await User.findById( req.params.id )
+        console.log('marcador 5', user);
+        //VerifyAdmin ( user )
+        if ( VerifyAdmin ( user ) === true) {
+            console.log('ACCESO CONCEDIDO');
+            //res.status(200).json(user)
+            res.status(200).render('datos.html', { user })
+        }else{
+            res.status(403).json( 'No se te permite hacer eso. No sos Admnistrador' )
+        }
+        
+    }catch(err){
+        res.status(403).json(err)
+    }
+ } )
