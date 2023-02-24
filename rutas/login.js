@@ -32,7 +32,7 @@ passport.use('login', new LocalStrategy(
                     const accessToken = Jwt.sign({  //CREAMOS EL JSONWEBTOKEN PARA LA APLICACION
                         id: user._id,
                         isAdmin: user.isAdmin,
-                    }, process.env.JWT_SCRET_KEY,  { expiresIn: '3d' })
+                    }, process.env.JWT_SCRET_KEY,  { expiresIn: '3d' })  //3d: SIGNIFICA QUE EL LOGIN VENCE EN 3 DIAS 
                     return done(null, user);
                 }
                 catch (err){ console.log(err) }

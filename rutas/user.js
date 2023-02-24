@@ -12,7 +12,7 @@ UserRoute.get('/usuario', (req,res)=> {
     res.send('USUARIO CONECTADO')
  })
 
-//---REGITER
+//---REGISTER
 
 UserRoute.post( '/register', register, ( req,res ) => {
     res.render('home.html')
@@ -38,7 +38,7 @@ UserRoute.post('/login', login, (req,res)=>{
 
 //---ACTUALIZAR USUARIOS
 
-UserRoute.put('/:id', async (req,res)=>{ //DESPUES VEMOS SI AGRUEGAMOS EL MIDDLEWARE PARA EL TOKEN, PERO ASI YA FUNCIONA
+UserRoute.put('/:id', VerifyTokenAndAuthorization ,async (req,res)=>{ //DESPUES VEMOS SI AGRUEGAMOS EL MIDDLEWARE PARA EL TOKEN, PERO ASI YA FUNCIONA
     try{
         const updatedUser = await User.findByIdAndUpdate( req.params.id , { $set: req.body }, { new: true } )
         console.log("El ususario actualizado es:", updatedUser);
@@ -46,23 +46,23 @@ UserRoute.put('/:id', async (req,res)=>{ //DESPUES VEMOS SI AGRUEGAMOS EL MIDDLE
     }
     catch(err){
         console.log(err);
-        res.status(500).json(err)
+        res.status(500).json(err)   
     }
 })
 
 //--BORRAR USUARIOS
 
-UserRoute.delete('/:id', VerifyAdmin, async (req,res)=> { 
+UserRoute.delete('/:id', VerifyTokenAndAuthorization, async (req,res)=> { 
     try{
         await User.findByIdAndDelete( req.params.id )
         res.status(200).json('El usuario fue borrado').redirect('home.html')
     }catch(err){
-        res.status(403).json(err)
+        res.status(500).json(err)
     }
  } )
 
 
- //--MOSTRAR USUARIOS
+ //--MOSTRAR USUARIO
 
 UserRoute.get('/:id' , async (req,res)=> { 
 
@@ -82,3 +82,55 @@ UserRoute.get('/:id' , async (req,res)=> {
         res.status(403).json(err)
     }
  } )
+
+ //--MOSTRAR TODOS LOS USUARIOS
+
+ UserRoute.get('/usuarios', async (req,res)=> { 
+
+    try{
+        const users = await User.find( )
+        if ( VerifyAdmin ( users ) === true) {
+            console.log('ACCESO CONCEDIDO');
+            //res.status(200).json(user)
+            res.status(200).render('datos.html', { users })
+        }else{
+            res.status(403).json( 'No se te permite hacer eso. No sos Admnistrador' )
+        }
+        
+    }catch(err){
+        res.status(403).json(err)
+    }
+ } )   
+
+
+//MOSTRAR ESTADISTICAS DE LOS USUARIOS 
+UserRoute.get('/stats', VerifyAdmin, async (req, res ) => {
+
+    const date = new Date();
+    const lastYear = new Date( date.setFullYear( date.getFullYear()-1  ) )//DEVUELVE EL AÑO ANTERIOR AL ACTUAL
+
+    try {
+        
+        const data = await User.aggregate([
+            { $match: { createdAt: { $gte: lastYear  } }  },
+            { 
+                $project:{
+                    month: { $month : '$createdAt '},
+
+                },
+            },
+            {
+                $group: {
+                    _id: "$month",
+                    total: {$sum: 1},
+                }
+            }
+        ])
+
+        res.status(200).json(data)
+
+    } catch (error) {
+        res.status(500).json(error)
+    }
+
+})

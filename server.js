@@ -5,6 +5,9 @@ import passport from 'passport';
 import session from 'express-session';
 import { UserRoute } from "./rutas/user.js"
 import { HomeRoute } from './rutas/home.js';
+import { ProductsRoute } from './rutas/product.js';
+import { CartRoute } from './rutas/cart.js';
+import { OrderRoute } from './rutas/order.js';
 import { renderFile } from 'ejs';
 
 const app = express()
@@ -48,6 +51,16 @@ app.use(passport.session());
 app.use ( '/api/user', UserRoute )
 
 app.use ( '/api/home', HomeRoute )
+
+app.use ( '/api/products', ProductsRoute )
+
+app.use ( '/api/cart', CartRoute )
+
+app.use ( '/api/order', OrderRoute )
+
+
+
+
 
 app.post( '/faillogin', (req,res)=>{
   res.render('failLogin.html' )

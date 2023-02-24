@@ -16,4 +16,4 @@ const OrderSchema = new mongoose.Schema (
     { timestamps: true }
 );
 
-export default mongoose.model( "Cart", OrderSchema ) //( NOMBRE DEL MODELO, Y NOMBRE DEL ESQUEMA  )
+export default mongoose.model( "Order", OrderSchema ) //( NOMBRE DEL MODELO, Y NOMBRE DEL ESQUEMA  )

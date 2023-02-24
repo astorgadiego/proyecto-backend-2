@@ -5,6 +5,7 @@ export const VerifyToken = ( req,res,next ) => {
     const authHeader = req.headers.token
 
     if (authHeader) {
+        const token = authHeader.split( " " )[1]
         Jwt.verify( token, process.env.JWT_SCRET_KEY, ( err, usuario ) =>{
             if (err) {
                 res.status(403).json('El token no es valido!')
@@ -27,15 +28,15 @@ export const VerifyTokenAndAuthorization = ( req,res,next ) =>{
     })
 }
 
-export const VerifyAdmin = ( user, res )=>{
+export const VerifyAdmin = ( user, req, res, next )=>{
     //console.log( 'marcador 4' , user);
+
     console.log('MARCADOR 4', user.isAdmin);
-    if ( user.isAdmin ) {
-        console.log('MARCADOR 3');
-        //next()
-        return true
-    }else{
-        console.log('MARCADOR 2');
-        return false
-    }
+    VerifyToken(req,res,() => { 
+        if ( req.user.isAdmin ) {
+            next()
+        } else {
+            res.status(403).json(" No se te permite hacer esto!")
+        } 
+    })
 }
