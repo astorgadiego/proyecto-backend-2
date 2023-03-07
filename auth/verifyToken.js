@@ -29,7 +29,6 @@ export const VerifyTokenAndAuthorization = ( req,res,next ) =>{
 }
 
 export const VerifyAdmin = ( user, req, res, next )=>{
-    //console.log( 'marcador 4' , user);
 
     console.log('MARCADOR 4', user.isAdmin);
     VerifyToken(req,res,() => { 

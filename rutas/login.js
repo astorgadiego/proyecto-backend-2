@@ -13,7 +13,7 @@ function isValidPassword(user,password) {
 passport.use('login', new LocalStrategy( 
     
     async ( username, password, done) => {
-                //const user = usuarios.find(usuario => usuario.username == username)
+                
                 const user = await User.findOne( { username : username } )
                 console.log('HOLA DE NUEVO', user); 
                 if (user == null) {
@@ -21,7 +21,6 @@ passport.use('login', new LocalStrategy(
                     return done(null, false)
                 }
 
-                //console.log('GATOOOO', user.password);
                 
 
                 if (!isValidPassword(user, password)) {
@@ -29,10 +28,10 @@ passport.use('login', new LocalStrategy(
                     return done(null, false)
                 }
                 try{
-                    const accessToken = Jwt.sign({  //CREAMOS EL JSONWEBTOKEN PARA LA APLICACION
+                    const accessToken = Jwt.sign({  
                         id: user._id,
                         isAdmin: user.isAdmin,
-                    }, process.env.JWT_SCRET_KEY,  { expiresIn: '3d' })  //3d: SIGNIFICA QUE EL LOGIN VENCE EN 3 DIAS 
+                    }, process.env.JWT_SCRET_KEY,  { expiresIn: '3d' }) 
                     return done(null, user);
                 }
                 catch (err){ console.log(err) }
@@ -47,7 +46,6 @@ passport.serializeUser(function (user, done) {
 
  //DESSERIALIZACION 
 passport.deserializeUser(async function ( username , done) {
-  //const usuario = usuarios.find(usuario => usuario.username == username)
   const user = await User.findOne( { username : username } )
   done(null, user);
 });

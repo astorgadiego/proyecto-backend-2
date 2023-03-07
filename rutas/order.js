@@ -61,8 +61,7 @@ OrderRoute.delete('/:id', VerifyAdmin, async (req,res) => {
 
 //--MOSTRAR ORDEN DEL USUARIO POR ID 
 
-OrderRoute.get('/:userid' , VerifyTokenAndAuthorization ,async (req,res)=> { //ESTE ID SERA EL ID DEL USUARIO
-
+OrderRoute.get('/:userid' , VerifyTokenAndAuthorization ,async (req,res)=> { 
     try{
         const orders = await Order.find( { userID : req.params.userid } )
         console.log('marcador 5', orders);

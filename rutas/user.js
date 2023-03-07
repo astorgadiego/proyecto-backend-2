@@ -26,7 +26,8 @@ UserRoute.get('/register', (req,res) => {
 //----LOGIN
 
 UserRoute.get('/login', login, (req,res)=>{
-    //console.log('SESION INCIADA');
+    
+    
     console.log('marcador');
     res.render('login.html')
 } )
@@ -38,7 +39,7 @@ UserRoute.post('/login', login, (req,res)=>{
 
 //---ACTUALIZAR USUARIOS
 
-UserRoute.put('/:id', VerifyTokenAndAuthorization ,async (req,res)=>{ //DESPUES VEMOS SI AGRUEGAMOS EL MIDDLEWARE PARA EL TOKEN, PERO ASI YA FUNCIONA
+UserRoute.put('/:id', VerifyTokenAndAuthorization ,async (req,res)=>{ 
     try{
         const updatedUser = await User.findByIdAndUpdate( req.params.id , { $set: req.body }, { new: true } )
         console.log("El ususario actualizado es:", updatedUser);
@@ -69,10 +70,10 @@ UserRoute.get('/:id' , async (req,res)=> {
     try{
         const user = await User.findById( req.params.id )
         console.log('marcador 5', user);
-        //VerifyAdmin ( user )
+        
         if ( VerifyAdmin ( user ) === true) {
             console.log('ACCESO CONCEDIDO');
-            //res.status(200).json(user)
+            
             res.status(200).render('datos.html', { user })
         }else{
             res.status(403).json( 'No se te permite hacer eso. No sos Admnistrador' )
@@ -107,8 +108,7 @@ UserRoute.get('/:id' , async (req,res)=> {
 UserRoute.get('/stats', VerifyAdmin, async (req, res ) => {
 
     const date = new Date();
-    const lastYear = new Date( date.setFullYear( date.getFullYear()-1  ) )//DEVUELVE EL AÑO ANTERIOR AL ACTUAL
-
+    const lastYear = new Date( date.setFullYear( date.getFullYear()-1  ) )
     try {
         
         const data = await User.aggregate([

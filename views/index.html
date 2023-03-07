@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js" ></script> 
+    <style>
+            body{
+                background-color: rgb(214, 194, 214);
+            }
+            
+            .clase{
+                    color: red;
+                    text-align: center;
+                    font-style: italic;
+                
+            }
+            .form-group{
+                text-align: center;
+            }
+            
+            .estilo-formulario{
+                margin-left: 10rem;
+                margin-right: 10rem;    
+            }
+            
+            #form{
+                background-color: rgb(84, 211, 211);
+                width: 50%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            #form label {
+                text-transform: uppercase;
+                color: rgb(14, 22, 6);
+            }
+            
+            table, td, tr { 
+                
+                text-align: center;
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            table {
+                width: 50%;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            h1{
+                color: red;
+                    text-align: center;
+                    font-style: italic;
+            }
+            
+            .tablaVacia{
+                    color: red;
+                    text-align: center;
+                    font-style: italic;
+            }
+            
+            .email{
+                color: blue;
+            }
+            
+            .mensaje{
+                color: green;
+                font-style: italic;
+                font-weight: bold;
+                text-transform: uppercase;
+                font-size: 125%;
+            }
+            .hora{
+                font-weight: bold;
+                color: brown;
+                text-transform: uppercase;
+            }
+    </style>
+
+    <title>Document</title>
+</head>
+<body>
+    
+    <h1>ELIJA LOS PRODUCTOS QUE DESEE</h1>
+    <div class="estilo-formulario">    
+        <form id="form" onsubmit="return AgregarAtabla(this)"  method="">
+                <div class="form-group">
+                    <label for="titulo">Titulo</label>
+                    <input type="text" class="form-control" id="titulo" name="nombre_del_producto" placeholder="Titulo">
+                </div>
+                <div class="form-group">
+                    <label for="precio">Precio</label>
+                    <input type="number" class="form-control" id="precio" name="precio" placeholder="Precio">
+                </div>
+                <div class="form-group">
+                    <label for="foto">Foto</label>
+                    <input type="image" class="form-control" id="foto" name="imagen" placeholder="Foto">
+                </div>
+                <br>
+                <div class="form-group">
+                    <button id="btnSend" type="submit" class="btn btn-primary">Enviar</button>
+                </div>
+
+        </form>
+    </div>
+
+    <table id="productosRecibidos"></table>
+
+    <form onsubmit= "addMessage(this)">
+        <p>Centro de Mensajes</p>
+        <input type="email"  id="email" placeholder="Ingrese su Mail" required>
+        <input type="text" id="mensaje" placeholder="Ingrese su Mensaje">
+        <input type="submit" value="Enviar" id="enviar">
+    </form>
+
+    <div id="mensajesrecibidos" ></div>
+    
+
+
+</body>
+
+<script>
+    
+
+            const socket = io (); 
+            
+            const productosRecibidos = document.getElementById ( 'productosRecibidos' )
+            const btnSend = document.getElementById ('btnSend')
+            const titulo = document.getElementById ('titulo')
+            const precio = document.getElementById ('precio')
+            const foto = document.getElementById ('foto')
+            
+            let fecha = new Date();
+            
+            function AgregarAtabla ( e ){
+                const ProductoAgregado = {
+                    titulo : document.getElementById ( 'titulo' ).value,
+                    precio: document.getElementById ( 'precio' ).value
+                };
+                socket.emit ( 'nuevo-producto', ProductoAgregado )
+                return false;
+            }
+            
+            function renderizador( ListadeProductos ) {
+            
+                if ( ListadeProductos.length !==0  ) {
+                        productosRecibidos.innerHTML='';
+                        productosRecibidos.innerHTML=`<thead>
+                                                            <tr>
+                                                                <th>Producto</th>
+                                                                <th>Precio</th>
+                                                                <th>Imagen</th>
+                                                            </tr>
+                                                      </thead>`
+                        ListadeProductos.forEach( nuevoProd => {
+                            productosRecibidos.innerHTML += 
+                                    `<tr>
+                                         <td>${nuevoProd.titulo}</td>
+                                         <td>$${nuevoProd.precio}</td>
+                                         <td>${nuevoProd.socketID}</td>
+                                    </tr>`
+                });
+                }      
+            }
+            
+            function addMessage( e ) {
+            
+                const NuevosMensajes = {
+                    email: document.getElementById( "email" ).value,
+                    texto: document.getElementById ( "mensaje" ).value,
+                    hora: `${fecha}`
+                };
+                socket.emit( "nuevo-mensaje", NuevosMensajes )
+                return false  
+            }
+            
+            function MostrarMensajes( Arraymensajes ) {
+                const hmtl = Arraymensajes.map( elem => { 
+                    return(` <div> 
+                                <strong class="email">${elem.email}</strong> <span class="hora">${elem.hora}</span>: 
+                                <em class="mensaje" >Mensaje: ${elem.texto}</em> 
+                             </div>`)
+                 }).join( "" );
+                 document.getElementById( "mensajesrecibidos" ).innerHTML = hmtl;
+                 
+                
+            }
+            
+            
+            
+            btnSend.addEventListener ( 'click', ()=> { 
+                        
+                socket.emit( 'guardarProducto', { socketID: socket.id, titulo: titulo.value, precio: precio.value })
+                titulo.value ='';
+                precio.value = '';
+                foto.value= '';
+            } 
+            )
+            
+            socket.on ( 'ProductoActual', ListadeProductos => {
+                productosRecibidos.innerHTML='';
+                productosRecibidos.innerHTML=`<thead>
+                                                    <tr>
+                                                        <th>Producto</th>
+                                                        <th>Precio</th>
+                                                        <th>Imagen</th>
+                                                    </tr>
+                                              </thead>`
+                ListadeProductos.forEach( nuevoProd => {
+                    productosRecibidos.innerHTML += 
+                            `<tr>
+                                 <td>${nuevoProd.titulo}</td>
+                                 <td>$${nuevoProd.precio}</td>
+                                 <td>${nuevoProd.socketID}</td>
+                            </tr>`
+                });
+                
+})
+
+socket.on ( "Tabla de Productos", ListadeProductos => { renderizador ( ListadeProductos ) } )
+
+socket.on ( "ID de mensaje", Arraymensajes=>{  MostrarMensajes ( Arraymensajes )  } )
+
+</script>
+
+</html>

@@ -61,7 +61,7 @@ CartRoute.delete('/:id', VerifyTokenAndAuthorization, async (req,res) => {
 
 //--MOSTRAR CARRITO DEL USUARIO POR ID 
 
-CartRoute.get('/:userid' , VerifyTokenAndAuthorization ,async (req,res)=> { //ESTE ID SERA EL ID DEL USUARIO
+CartRoute.get('/:userid' , VerifyTokenAndAuthorization ,async (req,res)=> {
 
     try{
         const cart = await Cart.findOne( { userID : req.params.userid } )
